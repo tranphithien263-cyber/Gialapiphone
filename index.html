@@ -1,0 +1,758 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>iOS Giả Lập 11-17</title>
+<style>
+/* ===== RESET ===== */
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+html, body { width: 100%; min-height: 100%; }
+body {
+  background: linear-gradient(180deg, #0a0015 0%, #1a0033 100%);
+  color: #fff;
+  font-family: -apple-system, 'Segoe UI', Arial, sans-serif;
+  padding: 20px 16px;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ===== SELECT SCREEN ===== */
+#selectScreen { max-width: 600px; margin: 0 auto; }
+.header { text-align: center; margin-bottom: 24px; }
+.header h1 {
+  font-size: 28px;
+  color: #ff9500;
+  margin-bottom: 8px;
+  text-shadow: 0 0 24px rgba(255, 149, 0, 0.6);
+  letter-spacing: 2px;
+}
+.header p { color: #a855f7; font-size: 13px; letter-spacing: 2px; font-weight: bold; }
+
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+.btn-ios {
+  display: block;
+  width: 100%;
+  padding: 22px 10px;
+  background: linear-gradient(135deg, #1a0a30, #2d1a45);
+  border: 2px solid #a855f7;
+  border-radius: 16px;
+  color: #fff;
+  cursor: pointer;
+  font-family: inherit;
+  text-align: center;
+  transition: all 0.2s;
+  outline: none;
+}
+.btn-ios:hover, .btn-ios:focus {
+  background: linear-gradient(135deg, #2d1a45, #3d2a55);
+  border-color: #ec4899;
+  transform: translateY(-3px);
+  box-shadow: 0 10px 30px rgba(168, 85, 247, 0.5);
+}
+.btn-ios:active { transform: translateY(-1px); }
+.btn-ios .ver {
+  display: block;
+  font-size: 26px;
+  font-weight: bold;
+  color: #ff9500;
+  margin-bottom: 6px;
+}
+.btn-ios .year {
+  display: block;
+  font-size: 12px;
+  color: #a855f7;
+  letter-spacing: 1px;
+}
+
+/* ===== PHONE VIEW ===== */
+#phoneView { display: none; max-width: 420px; margin: 0 auto; }
+.phone {
+  background: #000;
+  border-radius: 40px;
+  padding: 30px 20px 110px;
+  min-height: 720px;
+  border: 4px solid #333;
+  box-shadow: 0 0 60px rgba(168, 85, 247, 0.5);
+  position: relative;
+}
+.notch {
+  width: 130px;
+  height: 26px;
+  background: #000;
+  border-radius: 0 0 18px 18px;
+  margin: -30px auto 18px;
+  border: 1px solid #222;
+}
+.back-btn {
+  background: #333;
+  color: #fff;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 13px;
+  cursor: pointer;
+  margin-bottom: 16px;
+  font-family: inherit;
+}
+.back-btn:hover { background: #444; }
+.status {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+  margin-bottom: 16px;
+  padding: 0 8px;
+}
+.ios-title {
+  text-align: center;
+  font-size: 22px;
+  font-weight: bold;
+  color: #ff9500;
+  margin-bottom: 22px;
+}
+.apps {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 18px 8px;
+}
+.app {
+  text-align: center;
+  cursor: pointer;
+  font-size: 10px;
+  color: #fff;
+  transition: transform 0.15s;
+}
+.app:active { transform: scale(0.92); }
+.app .icon {
+  width: 54px;
+  height: 54px;
+  border-radius: 13px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 26px;
+  margin: 0 auto 5px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+}
+.dock {
+  position: absolute;
+  bottom: 20px;
+  left: 16px;
+  right: 16px;
+  height: 70px;
+  background: rgba(50, 50, 80, 0.5);
+  border-radius: 24px;
+  border: 1px solid rgba(255,255,255,0.15);
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  padding: 0 8px;
+}
+.dock-icon {
+  width: 52px;
+  height: 52px;
+  border-radius: 13px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 26px;
+  cursor: pointer;
+  transition: transform 0.15s;
+}
+.dock-icon:active { transform: scale(0.9); }
+
+/* ===== APP VIEW ===== */
+#appView {
+  display: none;
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: #000;
+  z-index: 9999;
+  padding: 20px;
+  overflow-y: auto;
+}
+#appView .topbar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+#appView .back-app {
+  background: #333;
+  color: #fff;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 13px;
+  cursor: pointer;
+  font-family: inherit;
+}
+#appView h2 { color: #ff9500; font-size: 22px; }
+#appView .content { color: #fff; font-size: 14px; line-height: 1.7; }
+
+/* ===== COMMON COMPONENTS ===== */
+.settings-row {
+  background: #1c1c1e;
+  padding: 16px;
+  border-bottom: 1px solid #2c2c2e;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 15px;
+}
+.settings-row:first-child { border-radius: 12px 12px 0 0; }
+.settings-row:last-child { border-radius: 0 0 12px 12px; border-bottom: none; }
+.settings-row .val { color: #8e8e93; font-size: 14px; }
+
+.msg-row {
+  background: #1c1c1e;
+  padding: 16px;
+  border-radius: 10px;
+  margin-bottom: 10px;
+}
+.msg-row b { display: block; margin-bottom: 4px; font-size: 15px; }
+.msg-row span { color: #8e8e93; font-size: 13px; }
+
+.calc-display {
+  background: #000;
+  color: #fff;
+  font-size: 42px;
+  text-align: right;
+  padding: 24px 20px;
+  border-radius: 10px;
+  margin-bottom: 16px;
+  min-height: 80px;
+  font-weight: 300;
+  word-break: break-all;
+  border: 1px solid #2c2c2e;
+}
+.calc-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
+  gap: 8px;
+}
+.calc-btn {
+  padding: 22px 0;
+  font-size: 20px;
+  background: #333;
+  color: #fff;
+  border: none;
+  border-radius: 50px;
+  cursor: pointer;
+  font-family: inherit;
+  font-weight: 500;
+  min-height: 60px;
+}
+.calc-btn:active { opacity: 0.7; }
+.calc-btn.op { background: #ff9500; }
+.calc-btn.clear { background: #a5a5a5; color: #000; }
+.calc-btn.zero { grid-column: span 2; }
+
+.photos {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 4px;
+}
+.photo {
+  padding-bottom: 100%;
+  position: relative;
+  background: linear-gradient(135deg, #ec4899, #a855f7);
+  border-radius: 4px;
+}
+.photo span {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32px;
+}
+.photo:nth-child(2n) { background: linear-gradient(135deg, #3b82f6, #06b6d4); }
+.photo:nth-child(3n) { background: linear-gradient(135deg, #f59e0b, #ef4444); }
+.photo:nth-child(5n) { background: linear-gradient(135deg, #22c55e, #4ade80); }
+
+.notes-area {
+  width: 100%;
+  height: 420px;
+  background: #1c1c1e;
+  border: none;
+  border-radius: 12px;
+  color: #fff;
+  font-size: 15px;
+  padding: 16px;
+  resize: none;
+  outline: none;
+  font-family: inherit;
+  line-height: 1.6;
+}
+
+.game-area {
+  width: 100%;
+  height: 320px;
+  background: #0a0a15;
+  border: 2px solid #007aff;
+  border-radius: 10px;
+  position: relative;
+  overflow: hidden;
+  margin-bottom: 14px;
+}
+.game-btn {
+  padding: 14px 32px;
+  background: #007aff;
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 15px;
+  font-weight: bold;
+  font-family: inherit;
+}
+.game-btn:active { opacity: 0.8; }
+.game-dir {
+  width: 60px;
+  height: 60px;
+  border-radius: 10px;
+  background: #1c1c1e;
+  border: none;
+  color: #fff;
+  font-size: 24px;
+  cursor: pointer;
+  font-family: inherit;
+}
+.game-dir:active { background: #2c2c2e; }
+
+.clock-big {
+  font-size: 64px;
+  text-align: center;
+  font-weight: 100;
+  margin: 50px 0;
+  color: #fff;
+  letter-spacing: -2px;
+}
+.clock-date {
+  text-align: center;
+  color: #8e8e93;
+  font-size: 16px;
+}
+
+.music-cover {
+  width: 220px;
+  height: 220px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #ec4899, #a855f7);
+  margin: 20px auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 80px;
+  box-shadow: 0 20px 60px rgba(168, 85, 247, 0.5);
+}
+.music-btn {
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  background: #fff;
+  border: none;
+  font-size: 26px;
+  cursor: pointer;
+  display: block;
+  margin: 20px auto;
+  color: #000;
+}
+
+.weather-big {
+  font-size: 90px;
+  font-weight: 100;
+  text-align: center;
+  line-height: 1;
+  margin: 10px 0;
+}
+.weather-city {
+  font-size: 32px;
+  font-weight: 300;
+  text-align: center;
+  margin-bottom: 6px;
+}
+.weather-desc {
+  text-align: center;
+  color: #8e8e93;
+  font-size: 16px;
+  margin-bottom: 24px;
+}
+.weather-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+.weather-card {
+  background: #1c1c1e;
+  border-radius: 10px;
+  padding: 16px;
+}
+.weather-card .lbl {
+  color: #8e8e93;
+  font-size: 11px;
+  margin-bottom: 6px;
+  letter-spacing: 1px;
+}
+.weather-card .val { font-size: 24px; font-weight: 600; }
+
+.browser-input {
+  width: 100%;
+  padding: 12px 16px;
+  background: #1c1c1e;
+  border: none;
+  border-radius: 8px;
+  color: #fff;
+  font-size: 14px;
+  margin-bottom: 16px;
+  outline: none;
+  font-family: inherit;
+}
+.browser-frame {
+  background: #1c1c1e;
+  border-radius: 10px;
+  padding: 80px 20px;
+  text-align: center;
+  color: #8e8e93;
+  line-height: 1.8;
+}
+
+.camera-view {
+  background: #1f2937;
+  border-radius: 12px;
+  height: 420px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 80px;
+}
+
+.map-view {
+  background: linear-gradient(135deg, #10b981, #34d399);
+  border-radius: 12px;
+  height: 420px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 100px;
+}
+
+.appstore-row {
+  background: #1c1c1e;
+  padding: 16px;
+  border-bottom: 1px solid #2c2c2e;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 15px;
+}
+.appstore-row:first-child { border-radius: 12px 12px 0 0; }
+.appstore-row:last-child { border-radius: 0 0 12px 12px; border-bottom: none; }
+.appstore-btn {
+  padding: 6px 18px;
+  background: #007aff;
+  color: #fff;
+  border: none;
+  border-radius: 14px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: bold;
+  font-family: inherit;
+}
+.appstore-btn:active { opacity: 0.8; }
+
+.placeholder-app {
+  text-align: center;
+  padding: 80px 20px;
+}
+.placeholder-app .big {
+  font-size: 100px;
+  margin-bottom: 24px;
+}
+.placeholder-app p {
+  color: #8e8e93;
+  font-size: 15px;
+  line-height: 1.7;
+}
+</style>
+</head>
+<body>
+
+<!-- ============ MÀN HÌNH CHỌN iOS ============ -->
+<div id="selectScreen">
+  <div class="header">
+    <h1>iOS GIẢ LẬP</h1>
+    <p>CHỌN PHIÊN BẢN iOS 11 → 17</p>
+  </div>
+  <div class="grid" id="iosGrid"></div>
+</div>
+
+<!-- ============ MÀN HÌNH ĐIỆN THOẠI ============ -->
+<div id="phoneView">
+  <div class="phone">
+    <div class="notch"></div>
+    <button class="back-btn" id="backBtn">← Chọn iOS khác</button>
+    <div class="status">
+      <span id="clock">00:00</span>
+      <span>📶 🔋</span>
+    </div>
+    <div class="ios-title" id="iosTitle">iOS</div>
+    <div class="apps" id="appList"></div>
+    <div class="dock" id="dockList"></div>
+  </div>
+</div>
+
+<!-- ============ MÀN HÌNH APP ============ -->
+<div id="appView">
+  <div class="topbar">
+    <button class="back-app" id="backAppBtn">← Quay lại</button>
+    <h2 id="appTitle">App</h2>
+  </div>
+  <div class="content" id="appContent"></div>
+</div>
+
+<script>
+/* ============================================================================
+   PHẦN 1 — DỮ LIỆU
+   ============================================================================ */
+
+var IOS_VERSIONS = [11, 12, 13, 14, 15, 16, 17];
+var IOS_YEARS = { 11: 2017, 12: 2018, 13: 2019, 14: 2020, 15: 2021, 16: 2022, 17: 2023 };
+
+var APPS = [
+  { id: 'messages', icon: '💬', name: 'Tin nhắn',  color: 'linear-gradient(135deg,#22c55e,#16a34a)' },
+  { id: 'settings', icon: '⚙️', name: 'Cài đặt',   color: 'linear-gradient(135deg,#6b7280,#4b5563)' },
+  { id: 'camera',   icon: '📷', name: 'Camera',   color: 'linear-gradient(135deg,#1f2937,#111827)' },
+  { id: 'photos',   icon: '🌄', name: 'Ảnh',      color: 'linear-gradient(135deg,#ec4899,#f472b6)' },
+  { id: 'calc',     icon: '🧮', name: 'Máy tính', color: 'linear-gradient(135deg,#f59e0b,#fbbf24)' },
+  { id: 'clock',    icon: '🕐', name: 'Đồng hồ',  color: 'linear-gradient(135deg,#374151,#1f2937)' },
+  { id: 'notes',    icon: '📝', name: 'Ghi chú',  color: 'linear-gradient(135deg,#fcd34d,#fef3c7)' },
+  { id: 'music',    icon: '🎵', name: 'Nhạc',     color: 'linear-gradient(135deg,#ef4444,#f87171)' },
+  { id: 'weather',  icon: '☀️', name: 'Thời tiết', color: 'linear-gradient(135deg,#0ea5e9,#38bdf8)' },
+  { id: 'browser',  icon: '🌐', name: 'Safari',   color: 'linear-gradient(135deg,#3b82f6,#60a5fa)' },
+  { id: 'appstore', icon: '🅰️', name: 'App Store', color: 'linear-gradient(135deg,#007aff,#00c6ff)' },
+  { id: 'game',     icon: '🐍', name: 'Snake',    color: 'linear-gradient(135deg,#22c55e,#4ade80)' },
+  { id: 'maps',     icon: '🗺️', name: 'Bản đồ',   color: 'linear-gradient(135deg,#10b981,#34d399)' },
+  { id: 'mail',     icon: '✉️', name: 'Mail',     color: 'linear-gradient(135deg,#06b6d4,#22d3ee)' },
+  { id: 'phone',    icon: '📞', name: 'Điện thoại', color: 'linear-gradient(135deg,#22c55e,#16a34a)' }
+];
+
+var DOCK_APPS = [
+  { id: 'phone',    icon: '📞', color: 'linear-gradient(135deg,#22c55e,#16a34a)' },
+  { id: 'messages', icon: '💬', color: 'linear-gradient(135deg,#22c55e,#4ade80)' },
+  { id: 'browser',  icon: '🌐', color: 'linear-gradient(135deg,#3b82f6,#60a5fa)' },
+  { id: 'music',    icon: '🎵', color: 'linear-gradient(135deg,#ef4444,#f87171)' }
+];
+
+/* ============================================================================
+   PHẦN 2 — BIẾN TOÀN CỤC
+   ============================================================================ */
+
+var currentIOS = 0;
+var clockInterval = null;
+var gameInterval = null;
+var gRunning = false;
+var calcExpr = '';
+var snake = [];
+var food = {};
+var gDir = { x: 1, y: 0 };
+var gScore = 0;
+var GRID = 15;
+
+/* ============================================================================
+   PHẦN 3 — DOM REFERENCES
+   ============================================================================ */
+
+var elSelectScreen = document.getElementById('selectScreen');
+var elPhoneView = document.getElementById('phoneView');
+var elAppView = document.getElementById('appView');
+var elIosGrid = document.getElementById('iosGrid');
+var elAppList = document.getElementById('appList');
+var elDockList = document.getElementById('dockList');
+var elIosTitle = document.getElementById('iosTitle');
+var elAppTitle = document.getElementById('appTitle');
+var elAppContent = document.getElementById('appContent');
+var elClock = document.getElementById('clock');
+var elBackBtn = document.getElementById('backBtn');
+var elBackAppBtn = document.getElementById('backAppBtn');
+
+/* ============================================================================
+   PHẦN 4 — HÀM CHUYỂN MÀN HÌNH
+   ============================================================================ */
+
+function showSelectScreen() {
+  elSelectScreen.style.display = 'block';
+  elPhoneView.style.display = 'none';
+  elAppView.style.display = 'none';
+  document.body.style.overflow = 'auto';
+}
+
+function showPhoneView() {
+  elSelectScreen.style.display = 'none';
+  elPhoneView.style.display = 'block';
+  elAppView.style.display = 'none';
+  document.body.style.overflow = 'auto';
+}
+
+function showAppView() {
+  elAppView.style.display = 'block';
+  document.body.style.overflow = 'auto';
+}
+
+/* ============================================================================
+   PHẦN 5 — XỬ LÝ CHỌN iOS
+   ============================================================================ */
+
+function openIOS(version) {
+  currentIOS = version;
+  elIosTitle.textContent = 'iOS ' + version;
+  renderAppList();
+  renderDock();
+  updateClock();
+  showPhoneView();
+  window.scrollTo(0, 0);
+}
+
+function backToSelect() {
+  if (clockInterval) { clearInterval(clockInterval); clockInterval = null; }
+  if (gameInterval) { clearInterval(gameInterval); gameInterval = null; }
+  gRunning = false;
+  showSelectScreen();
+  window.scrollTo(0, 0);
+}
+
+/* ============================================================================
+   PHẦN 6 — BUILD 7 NÚT iOS
+   ============================================================================ */
+
+function buildIOSButtons() {
+  elIosGrid.innerHTML = '';
+  for (var i = 0; i < IOS_VERSIONS.length; i++) {
+    (function(ver) {
+      var btn = document.createElement('button');
+      btn.className = 'btn-ios';
+      btn.setAttribute('type', 'button');
+      btn.innerHTML = '<span class="ver">iOS ' + ver + '</span><span class="year">' + IOS_YEARS[ver] + '</span>';
+      btn.addEventListener('click', function(e) {
+        e.preventDefault();
+        openIOS(ver);
+      });
+      elIosGrid.appendChild(btn);
+    })(IOS_VERSIONS[i]);
+  }
+}
+
+/* ============================================================================
+   PHẦN 7 — RENDER APP LIST
+   ============================================================================ */
+
+function renderAppList() {
+  elAppList.innerHTML = '';
+  for (var i = 0; i < APPS.length; i++) {
+    (function(app) {
+      var div = document.createElement('div');
+      div.className = 'app';
+      div.innerHTML = '<div class="icon" style="background:' + app.color + '">' + app.icon + '</div>' + app.name;
+      div.addEventListener('click', function() {
+        openApp(app.id);
+      });
+      elAppList.appendChild(div);
+    })(APPS[i]);
+  }
+}
+
+function renderDock() {
+  elDockList.innerHTML = '';
+  for (var i = 0; i < DOCK_APPS.length; i++) {
+    (function(app) {
+      var div = document.createElement('div');
+      div.className = 'dock-icon';
+      div.style.background = app.color;
+      div.textContent = app.icon;
+      div.addEventListener('click', function() {
+        openApp(app.id);
+      });
+      elDockList.appendChild(div);
+    })(DOCK_APPS[i]);
+  }
+}
+
+/* ============================================================================
+   PHẦN 8 — XỬ LÝ APP
+   ============================================================================ */
+
+function openApp(id) {
+  var app = null;
+  for (var i = 0; i < APPS.length; i++) {
+    if (APPS[i].id === id) { app = APPS[i]; break; }
+  }
+  if (!app) return;
+  elAppTitle.textContent = app.name;
+  elAppContent.innerHTML = getAppContent(id);
+  showAppView();
+  window.scrollTo(0, 0);
+  if (id === 'calc') initCalc();
+  if (id === 'clock') startClock();
+  if (id === 'game') {
+    gRunning = false;
+    if (gameInterval) { clearInterval(gameInterval); gameInterval = null; }
+  }
+}
+
+function closeApp() {
+  if (clockInterval) { clearInterval(clockInterval); clockInterval = null; }
+  if (gameInterval) { clearInterval(gameInterval); gameInterval = null; }
+  gRunning = false;
+  elAppView.style.display = 'none';
+  window.scrollTo(0, 0);
+}
+
+/* ============================================================================
+   PHẦN 9 — NỘI DUNG APP
+   ============================================================================ */
+
+function getAppContent(id) {
+  if (id === 'messages') return contentMessages();
+  if (id === 'settings') return contentSettings();
+  if (id === 'camera') return contentCamera();
+  if (id === 'photos') return contentPhotos();
+  if (id === 'calc') return contentCalc();
+  if (id === 'clock') return contentClock();
+  if (id === 'notes') return contentNotes();
+  if (id === 'music') return contentMusic();
+  if (id === 'weather') return contentWeather();
+  if (id === 'browser') return contentBrowser();
+  if (id === 'appstore') return contentAppStore();
+  if (id === 'game') return contentGame();
+  if (id === 'maps') return contentMaps();
+  if (id === 'mail') return contentMail();
+  if (id === 'phone') return contentPhone();
+  return '<p style="color:#8e8e93">App đang phát triển</p>';
+}
+
+function contentMessages() {
+  var msgs = [
+    { name: 'An',   text: 'Tối nay đi chơi không?' },
+    { name: 'Bình', text: 'Ok luôn 🔥' },
+    { name: 'Chi',  text: 'Gửi ảnh cho mình với' },
+    { name: 'Dũng', text: 'Mai họp 8h nhé' }
+  ];
+  var html = '';
+  for (var i = 0; i < msgs.length; i++) {
+    html += '<div class="msg-row"><b>' + msgs[i].name + '</b><span>' + msgs[i].text + '</span></div>';
+  }
+  return html;
+}
+
+function contentSettings() {
+  var items = [
+    ['✈️', 'Chế độ máy bay', 'Tắt'],
+    ['📶', 'Wi-Fi', 'Nhà_5G ›'],
+    ['📶', 'Bluetooth', 'Bật'],
+    ['
